@@ -33,9 +33,8 @@ public class AccessioningUserRestController {
     @Autowired
     private AccessioningUserRepository accessioningUserRepository;
 
-    @RequestMapping(path = "addOrUpdate", method = {RequestMethod.POST},
-            produces = {"application/json"}, consumes = {"application/json"})
-    public void saveOrUpdate(@RequestBody AccessioningUser accessioningUser) {
+    @RequestMapping(method = {RequestMethod.POST}, produces = {"application/json"}, consumes = {"application/json"})
+    public void saveUser(@RequestBody AccessioningUser accessioningUser) {
         accessioningUserRepository.save(accessioningUser);
     }
 }
