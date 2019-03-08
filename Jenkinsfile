@@ -8,8 +8,8 @@ pipeline {
       stagingPostgresDbUrl = credentials('EGAPOSTGRESDBURL')
       fallBackPostgresDbUrl = credentials('EGAPOSTGRESDBURL')
       productionPostgresDbUrl = credentials('EGAPOSTGRESDBURL')
-      postgresDBUserName = credentials('POSTGRESDBUSERNAME')
-      postgresDBPassword = credentials('POSTGRESDBPASSWORD')
+      postgresDbUserName = credentials('POSTGRESDBUSERNAME')
+      postgresDbPassword = credentials('POSTGRESDBPASSWORD')
       tomcatCredentials = credentials('TOMCATCREDENTIALS')
       stagingHost = credentials('STAGINGHOST')
       fallbackHost = credentials('FALLBACKHOST')
@@ -28,8 +28,8 @@ pipeline {
     stage('Default Build pointing to Staging DB') {
       steps {
         sh "mvn clean package -DskipTests -DbuildDirectory=staging/target \
-         -DegaAccession-db.url=${stagingPostgresDbUrl} -DegaAccession-db.username=${postgresDBUserName} \
-         -DegaAccession-db.password=${postgresDBPassword} -Dinstance.id=ega-accession-01-staging \
+         -DegaAcccession-db.url=${stagingPostgresDbUrl} -DegaAccession-db.username=${postgresDbUserName} \
+         -DegaAcccession-db.password=${postgresDbPassword} -Dinstance.id=ega-accession-01-staging \
          -Dddl-behaviour=${params.DbBehaviour} -Dega-aai-client-id=${egaAAIClientId} \
          -Dega-aai-client-secret=${egaAAIClientSecret} -Dega-aai-token-introspect-url=${egaAAITokenIntrospectUrl}"
       }
@@ -43,14 +43,14 @@ pipeline {
       steps {
         echo 'Build pointing to FallBack DB'
         sh "mvn clean package -DskipTests -DbuildDirectory=fallback/target \
-         -DegaAccession-db.url=${fallBackPostgresDbUrl} -DegaAccession-db.username=${postgresDBUserName} \
-         -DegaAccession-db.password=${postgresDBPassword} -Dinstance.id=ega-accession-01-fallback  \
+         -DegaAcccession-db.url=${fallBackPostgresDbUrl} -DegaAccession-db.username=${postgresDbUserName} \
+         -DegaAcccession-db.password=${postgresDbPassword} -Dinstance.id=ega-accession-01-fallback  \
          -Dddl-behaviour=${params.DbBehaviour} -Dega-aai-client-id=${egaAAIClientId} \
          -Dega-aai-client-secret=${egaAAIClientSecret} -Dega-aai-token-introspect-url=${egaAAITokenIntrospectUrl}"
         echo 'Build pointing to Production DB'
         sh "mvn clean package -DskipTests -DbuildDirectory=production/target \
-         -DegaAccession-db.url=${productionPostgresDbUrl} -DegaAccession-db.username=${postgresDBUserName} \
-         -DegaAccession-db.password=${postgresDBPassword} -Dinstance.id=ega-accession-01-production \
+         -DegaAcccession-db.url=${productionPostgresDbUrl} -DegaAccession-db.username=${postgresDbUserName} \
+         -DegaAcccession-db.password=${postgresDbPassword} -Dinstance.id=ega-accession-01-production \
          -Dddl-behaviour=${params.DbBehaviour} -Dega-aai-client-id=${egaAAIClientId} \
          -Dega-aai-client-secret=${egaAAIClientSecret} -Dega-aai-token-introspect-url=${egaAAITokenIntrospectUrl}"
        }
