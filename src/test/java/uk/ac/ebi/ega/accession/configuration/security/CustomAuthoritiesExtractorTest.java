@@ -23,48 +23,48 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.ac.ebi.ega.accession.configuration.AccessioningUserConfiguration;
 import uk.ac.ebi.ega.accession.user.AccessioningUserRepository;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = AccessioningUserConfiguration.class)
 @DataJpaTest
-public class CustomUserAuthenticationConverterTest {
+public class CustomAuthoritiesExtractorTest {
 
     @Autowired
     private AccessioningUserRepository accessioningUserRepository;
 
     @Test
     public void testRoles() throws Exception {
-        CustomUserAuthenticationConverter customUserAuthenticationConverter = new
-                CustomUserAuthenticationConverter(accessioningUserRepository);
-        Map<String, Object> userIdMap = new HashMap<>();
-        userIdMap.put("user_id", "testEditor@ebi.ac.uk");
-        Authentication authentication = customUserAuthenticationConverter.extractAuthentication(userIdMap);
-        Assert.assertEquals("ROLE_EDITOR", getAuthority(authentication));
+        CustomAuthoritiesExtractor customAuthoritiesExtractor = new
+                CustomAuthoritiesExtractor(accessioningUserRepository);
+        Map<String, Object> userInfoMap = new HashMap<>();
+        userInfoMap.put("email", "testEditor@ebi.ac.uk");
+        List<GrantedAuthority> authorities = customAuthoritiesExtractor.extractAuthorities(userInfoMap);
+        Assert.assertEquals("ROLE_EDITOR", getAuthority(authorities));
 
-        userIdMap.put("user_id", "testUser@ebi.ac.uk");
-        authentication = customUserAuthenticationConverter.extractAuthentication(userIdMap);
-        Assert.assertEquals("ROLE_USER", getAuthority(authentication));
+        userInfoMap.put("email", "testUser@ebi.ac.uk");
+        authorities = customAuthoritiesExtractor.extractAuthorities(userInfoMap);
+        Assert.assertEquals("ROLE_USER", getAuthority(authorities));
 
-        userIdMap.put("user_id", "testAdmin@ebi.ac.uk");
-        authentication = customUserAuthenticationConverter.extractAuthentication(userIdMap);
-        Assert.assertEquals("ROLE_ADMIN", getAuthority(authentication));
+        userInfoMap.put("email", "testAdmin@ebi.ac.uk");
+        authorities = customAuthoritiesExtractor.extractAuthorities(userInfoMap);
+        Assert.assertEquals("ROLE_ADMIN", getAuthority(authorities));
 
-        userIdMap.put("user_id", "testNewUser@ebi.ac.uk");
-        authentication = customUserAuthenticationConverter.extractAuthentication(userIdMap);
-        Assert.assertEquals("ROLE_USER", getAuthority(authentication));
+        userInfoMap.put("email", "testNewUser@ebi.ac.uk");
+        authorities = customAuthoritiesExtractor.extractAuthorities(userInfoMap);
+        Assert.assertEquals("ROLE_USER", getAuthority(authorities));
     }
 
-    private String getAuthority(Authentication authentication) {
-        return ((SimpleGrantedAuthority) authentication.getAuthorities().toArray()[0]).getAuthority();
+    private String getAuthority(List<GrantedAuthority> authorities) {
+        return authorities.get(0).getAuthority();
     }
 
 }
