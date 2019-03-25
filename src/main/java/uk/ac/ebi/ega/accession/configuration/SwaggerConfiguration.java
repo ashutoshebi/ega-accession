@@ -68,11 +68,15 @@ public class SwaggerConfiguration {
     @Autowired
     private SwaggerApiInfoProperties swaggerApiInfoProperties;
 
-    private SecurityReference securityReference = SecurityReference.builder()
-            .reference("Authorization").scopes(new AuthorizationScope[0]).build();
+    @Bean
+    public SecurityReference securityReference() {
+        return SecurityReference.builder().reference("Authorization").scopes(new AuthorizationScope[0]).build();
+    }
 
-    private SecurityContext securityContext = SecurityContext.builder()
-            .securityReferences(Arrays.asList(securityReference)).build();
+    @Bean
+    public SecurityContext securityContext() {
+        return SecurityContext.builder().securityReferences(Arrays.asList(securityReference())).build();
+    }
 
     @Bean
     public Docket metadataApi() {
@@ -102,7 +106,7 @@ public class SwaggerConfiguration {
                 .directModelSubstitute(LocalDate.class, String.class)
                 .genericModelSubstitutes(ResponseEntity.class)
                 .securitySchemes(Arrays.asList(new ApiKey("Authorization", "Authorization", "header")))
-                .securityContexts(Arrays.asList(securityContext))
+                .securityContexts(Arrays.asList(securityContext()))
                 .alternateTypeRules(getSubstitutionRules());
     }
 
