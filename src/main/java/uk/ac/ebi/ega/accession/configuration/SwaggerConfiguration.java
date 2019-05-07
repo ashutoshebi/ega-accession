@@ -36,10 +36,14 @@ import springfox.documentation.builders.ResponseMessageBuilder;
 import springfox.documentation.schema.AlternateTypeRule;
 import springfox.documentation.schema.WildcardType;
 import springfox.documentation.service.ApiInfo;
+import springfox.documentation.service.ApiKey;
+import springfox.documentation.service.AuthorizationScope;
 import springfox.documentation.service.Contact;
 import springfox.documentation.service.ResponseMessage;
+import springfox.documentation.service.SecurityReference;
 import springfox.documentation.service.Tag;
 import springfox.documentation.spi.DocumentationType;
+import springfox.documentation.spi.service.contexts.SecurityContext;
 import springfox.documentation.spring.web.plugins.Docket;
 import springfox.documentation.swagger.web.UiConfiguration;
 import springfox.documentation.swagger.web.UiConfigurationBuilder;
@@ -55,7 +59,7 @@ import static springfox.documentation.schema.AlternateTypeRules.newRule;
 @Configuration
 @EnableSwagger2
 @EnableConfigurationProperties(SwaggerApiInfoProperties.class)
-@Import({BeanValidatorPluginsConfiguration.class})
+@Import(BeanValidatorPluginsConfiguration.class)
 public class SwaggerConfiguration {
 
     @Autowired
@@ -63,6 +67,16 @@ public class SwaggerConfiguration {
 
     @Autowired
     private SwaggerApiInfoProperties swaggerApiInfoProperties;
+
+    @Bean
+    public SecurityReference securityReference() {
+        return SecurityReference.builder().reference("Authorization").scopes(new AuthorizationScope[0]).build();
+    }
+
+    @Bean
+    public SecurityContext securityContext() {
+        return SecurityContext.builder().securityReferences(Arrays.asList(securityReference())).build();
+    }
 
     @Bean
     public Docket metadataApi() {
@@ -91,6 +105,8 @@ public class SwaggerConfiguration {
                 .globalResponseMessage(RequestMethod.PATCH, getResponseMessagesForPostAndPatch())
                 .directModelSubstitute(LocalDate.class, String.class)
                 .genericModelSubstitutes(ResponseEntity.class)
+                .securitySchemes(Arrays.asList(new ApiKey("Authorization", "Authorization", "header")))
+                .securityContexts(Arrays.asList(securityContext()))
                 .alternateTypeRules(getSubstitutionRules());
     }
 
@@ -121,7 +137,8 @@ public class SwaggerConfiguration {
         return Predicates.and(
                 Predicates.not(PathSelectors.regex("/actuator.*")), // Hide spring-actuator
                 Predicates.not(PathSelectors.regex("/error.*")), // Hide spring-data error
-                Predicates.not(PathSelectors.regex("/profile.*")) // Hide spring-data profile
+                Predicates.not(PathSelectors.regex("/profile.*")), // Hide spring-data profile
+                Predicates.not(PathSelectors.regex("/users.*")) // Hide user controller from swagger
         );
     }
 

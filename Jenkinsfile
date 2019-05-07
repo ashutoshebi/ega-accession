@@ -8,12 +8,13 @@ pipeline {
       stagingPostgresDbUrl = credentials('EGAPOSTGRESDBURL')
       fallBackPostgresDbUrl = credentials('EGAPOSTGRESDBURL')
       productionPostgresDbUrl = credentials('EGAPOSTGRESDBURL')
-      postgresDBUserName = credentials('POSTGRESDBUSERNAME')
-      postgresDBPassword = credentials('POSTGRESDBPASSWORD')
+      postgresDbUserName = credentials('POSTGRESDBUSERNAME')
+      postgresDbPassword = credentials('POSTGRESDBPASSWORD')
       tomcatCredentials = credentials('TOMCATCREDENTIALS')
       stagingHost = credentials('STAGINGHOST')
       fallbackHost = credentials('FALLBACKHOST')
       productionHost = credentials('PRODUCTIONHOST')
+      egaAAIUserInfoUrl = credentials('EGAAAIUSERINFOURL')
    }
    parameters {
       choice(choices: ['validate', 'create'], description: 'Behaviour at connection time (initialize/validate schema)',
@@ -24,7 +25,10 @@ pipeline {
   stages {
     stage('Default Build pointing to Staging DB') {
       steps {
-        sh "mvn clean package -DskipTests -DbuildDirectory=staging/target -DegaAccession-db.url=${stagingPostgresDbUrl} -DegaAccession-db.username=${postgresDBUserName} -DegaAccession-db.password=${postgresDBPassword} -Dinstance.id=ega-accession-01-staging -Dddl-behaviour=${params.DbBehaviour}"
+        sh "mvn clean package -DskipTests -DbuildDirectory=staging/target \
+         -DegaAccession-db.url=${stagingPostgresDbUrl} -DegaAccession-db.username=${postgresDbUserName} \
+         -DegaAccession-db.password=${postgresDbPassword} -Dinstance.id=ega-accession-01-staging \
+         -Dddl-behaviour=${params.DbBehaviour} -Dega-aai-user-info-url=${egaAAIUserInfoUrl}"
       }
     }
     stage('Build For FallBack And Production') {
@@ -35,9 +39,15 @@ pipeline {
        }
       steps {
         echo 'Build pointing to FallBack DB'
-        sh "mvn clean package -DskipTests -DbuildDirectory=fallback/target -DegaAccession-db.url=${fallBackPostgresDbUrl} -DegaAccession-db.username=${postgresDBUserName} -DegaAccession-db.password=${postgresDBPassword} -Dinstance.id=ega-accession-01-fallback -Dddl-behaviour=${params.DbBehaviour}"
+        sh "mvn clean package -DskipTests -DbuildDirectory=fallback/target \
+         -DegaAccession-db.url=${fallBackPostgresDbUrl} -DegaAccession-db.username=${postgresDbUserName} \
+         -DegaAccession-db.password=${postgresDbPassword} -Dinstance.id=ega-accession-01-fallback  \
+         -Dddl-behaviour=${params.DbBehaviour} -Dega-aai-user-info-url=${egaAAIUserInfoUrl}"
         echo 'Build pointing to Production DB'
-        sh "mvn clean package -DskipTests -DbuildDirectory=production/target -DegaAccession-db.url=${productionPostgresDbUrl} -DegaAccession-db.username=${postgresDBUserName} -DegaAccession-db.password=${postgresDBPassword} -Dinstance.id=ega-accession-01-production -Dddl-behaviour=${params.DbBehaviour}"
+        sh "mvn clean package -DskipTests -DbuildDirectory=production/target \
+         -DegaAccession-db.url=${productionPostgresDbUrl} -DegaAccession-db.username=${postgresDbUserName} \
+         -DegaAccession-db.password=${postgresDbPassword} -Dinstance.id=ega-accession-01-production \
+         -Dddl-behaviour=${params.DbBehaviour} -Dega-aai-user-info-url=${egaAAIUserInfoUrl}"
        }
      }
     stage('Deploy To Staging') {
