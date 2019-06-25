@@ -30,6 +30,7 @@ import uk.ac.ebi.ampt2d.commons.accession.core.DatabaseService;
 import uk.ac.ebi.ampt2d.commons.accession.core.DecoratedAccessioningService;
 import uk.ac.ebi.ampt2d.commons.accession.generators.monotonic.MonotonicAccessionGenerator;
 import uk.ac.ebi.ampt2d.commons.accession.generators.monotonic.MonotonicRange;
+import uk.ac.ebi.ampt2d.commons.accession.hashing.MD5HashingFunction;
 import uk.ac.ebi.ampt2d.commons.accession.hashing.SHA1HashingFunction;
 import uk.ac.ebi.ampt2d.commons.accession.persistence.jpa.monotonic.service.ContiguousIdBlockService;
 import uk.ac.ebi.ampt2d.commons.accession.persistence.jpa.monotonic.service.MonotonicDatabaseService;
@@ -85,7 +86,7 @@ public class DacServiceConfiguration {
                         monotonicDatabaseService()),
                 dacAccessioningDatabaseService(),
                 dac -> dac.getSubmissionAccount() + "_" + dac.getAlias(),
-                new SHA1HashingFunction());
+                new MD5HashingFunction());
     }
 
     public MonotonicDatabaseService monotonicDatabaseService() {
